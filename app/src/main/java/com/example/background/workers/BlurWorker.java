@@ -33,7 +33,8 @@ public class BlurWorker extends Worker {
     public Result doWork() {
 
         Context applicationContext = getApplicationContext();
-
+        WorkerUtils.makeStatusNotification("Blurring image", applicationContext);
+        WorkerUtils.sleep();
         String resourceUri = getInputData().getString(KEY_IMAGE_URI);
 
         try {
@@ -43,15 +44,10 @@ public class BlurWorker extends Worker {
             }
 
             ContentResolver resolver = applicationContext.getContentResolver();
-
             Bitmap picture = BitmapFactory.decodeStream(
                     resolver.openInputStream(Uri.parse(resourceUri)));
-
             Bitmap output = WorkerUtils.blurBitmap(picture, applicationContext);
-
             Uri outputUri = WorkerUtils.writeBitmapToFile(applicationContext, output);
-
-            WorkerUtils.makeStatusNotification("Output is" + outputUri.toString(), applicationContext);
 
             Data outputData = new Data.Builder()
                     .putString(KEY_IMAGE_URI, outputUri.toString())
