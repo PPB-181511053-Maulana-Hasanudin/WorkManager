@@ -101,6 +101,10 @@ public class BlurViewModel extends AndroidViewModel {
         continuation.enqueue();
     }
 
+    void cancelWork() {
+        mWorkManager.cancelUniqueWork(IMAGE_MANIPULATION_WORK_NAME);
+    }
+
     private Uri uriOrNull(String uriString) {
         if (!TextUtils.isEmpty(uriString)) {
             return Uri.parse(uriString);
