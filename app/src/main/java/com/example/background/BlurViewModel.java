@@ -45,6 +45,7 @@ public class BlurViewModel extends AndroidViewModel {
     private Uri mImageUri;
     private WorkManager mWorkManager;
     private LiveData<List<WorkInfo>> mSavedWorkInfo;
+    private Uri mOutputUri;
 
     public BlurViewModel(@NonNull Application application) {
 
@@ -55,6 +56,14 @@ public class BlurViewModel extends AndroidViewModel {
 
     LiveData<List<WorkInfo>> getOutputWorkInfo() {
         return mSavedWorkInfo;
+    }
+
+    void setOutputUri(String outputImageUri) {
+        mOutputUri = uriOrNull(outputImageUri);
+    }
+
+    Uri getOutputUri() {
+        return mOutputUri;
     }
 
     private Data createInputDataForUri() {
