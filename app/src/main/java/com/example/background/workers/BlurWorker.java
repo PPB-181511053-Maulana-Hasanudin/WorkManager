@@ -1,16 +1,22 @@
 package com.example.background.workers;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.background.Constants;
 import com.example.background.R;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
+import static com.example.background.Constants.KEY_IMAGE_URI;
 
 public class BlurWorker extends Worker {
 
@@ -28,11 +34,18 @@ public class BlurWorker extends Worker {
 
         Context applicationContext = getApplicationContext();
 
-        try {
+        String resourceUri = getInputData().getString(KEY_IMAGE_URI);
 
-            Bitmap picture = BitmapFactory.decodeResource(
-                    applicationContext.getResources(),
-                    R.drawable.test);
+        try {
+            if (TextUtils.isEmpty(resourceUri)) {
+                Log.e(TAG, "Invalid input uri");
+                throw new IllegalArgumentException("Invalid input uri");
+            }
+
+            ContentResolver resolver = applicationContext.getContentResolver();
+
+            Bitmap picture = BitmapFactory.decodeStream(
+                    resolver.openInputStream(Uri.parse(resourceUri)));
 
             Bitmap output = WorkerUtils.blurBitmap(picture, applicationContext);
 
@@ -40,7 +53,11 @@ public class BlurWorker extends Worker {
 
             WorkerUtils.makeStatusNotification("Output is" + outputUri.toString(), applicationContext);
 
-            return Result.success();
+            Data outputData = new Data.Builder()
+                    .putString(KEY_IMAGE_URI, outputUri.toString())
+                    .build();
+
+            return Result.success(outputData);
         } catch (Throwable throwable) {
 
             Log.e(TAG, "Error applying blur", throwable);
